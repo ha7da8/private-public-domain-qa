@@ -16,7 +16,6 @@ type Citation = {
 export function parseAnswerToHtml(answer: string, onCitationClicked: (citationFilePath: string) => void): HtmlParsedAnswer {
     const citations: Citation[] = [];
     const followupQuestions: string[] = [];
-
     // Extract any follow-up questions that might be in the answer
     let parsedAnswer = answer.replace(/<<([^>>]+)>>/g, (match, content) => {
         followupQuestions.push(content);

@@ -12,6 +12,7 @@ from approaches.readretrieveread import ReadRetrieveReadApproach
 from approaches.readdecomposeask import ReadDecomposeAsk
 from approaches.chatreadretrieveread import ChatReadRetrieveReadApproach
 from approaches.bingsearchandanswer import BingSearchApproach
+from approaches.databaseSqlQuery import DatabaseSqlQueryApproach
 from azure.storage.blob import BlobServiceClient
 from azure.core.credentials import AzureKeyCredential
 import azure.cognitiveservices.speech as speechsdk
@@ -34,6 +35,7 @@ AZURE_BLOB_STORAGE_ACCOUNT_ENDPOINT = os.environ.get("AZURE_BLOB_STORAGE_ACCOUNT
 # azure openAI config
 AZURE_OPENAI_SERVICE = os.environ.get("AZURE_OPENAI_SERVICE") or "openAIdemo-hu"
 AZURE_OPENAI_GPT_DEPLOYMENT = os.environ.get("AZURE_OPENAI_GPT_DEPLOYMENT") or "text-davinci-003"
+AZURE_OPENAI_CODEX_DEPLOYMENT = os.environ.get("AZURE_OPENAI_CODEX_DEPLOYMENT") or "code-davinci-002"
 AZURE_OPENAI_CHATGPT_DEPLOYMENT = os.environ.get("AZURE_OPENAI_CHATGPT_DEPLOYMENT") or "gpt-35-turbo"
 AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY") or "a65f52d60c744eb9b141d9939cd4c4b6"
 AZURE_OPENAI_BASE = os.environ.get("AZURE_OPENAI_BASE") or f"https://{AZURE_OPENAI_SERVICE}.openai.azure.com"
@@ -92,7 +94,7 @@ blob_list = blob_container.list_blobs()
 ask_approaches = {
     "rtr": RetrieveThenReadApproach(search_client, AZURE_OPENAI_GPT_DEPLOYMENT, KB_FIELDS_SOURCEPAGE, KB_FIELDS_CONTENT),
     "rrr": ReadRetrieveReadApproach(search_client, AZURE_OPENAI_GPT_DEPLOYMENT, KB_FIELDS_SOURCEPAGE, KB_FIELDS_CONTENT),
-    "rda": ReadDecomposeAsk(search_client, AZURE_OPENAI_GPT_DEPLOYMENT, KB_FIELDS_SOURCEPAGE, KB_FIELDS_CONTENT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_BASE),
+    "rda": DatabaseSqlQueryApproach(AZURE_OPENAI_GPT_DEPLOYMENT, AZURE_OPENAI_CODEX_DEPLOYMENT),
     "bing": BingSearchApproach(search_client, AZURE_OPENAI_CHATGPT_DEPLOYMENT, KB_FIELDS_SOURCEPAGE, KB_FIELDS_SOURCE_PATH, AZURE_BING_SEARCH_SUBSCRIPTION_KEY, AZURE_BING_SEARCH_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_BASE)
 }
 
@@ -127,6 +129,7 @@ def ask():
         if not impl:
             return jsonify({"error": "unknown approach"}), 400
         r = impl.run(request.json["question"], request.json.get("overrides") or {})
+        print(r)
         return jsonify(r)
     except Exception as e:
         logging.exception("Exception in /ask")

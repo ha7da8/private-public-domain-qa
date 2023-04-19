@@ -140,7 +140,7 @@ const OneShot = () => {
                 <h1 className={styles.oneshotTitle}>Ask your data</h1>
                 <div className={styles.oneshotQuestionInput}>
                     <QuestionInput
-                        placeholder="示例:面条是否可以用体外模拟进行GI测试？?"
+                        placeholder="示例:查询出涨幅最高的三只股票"
                         disabled={isLoading}
                         onSend={question => makeApiRequest(question)}
                     />
